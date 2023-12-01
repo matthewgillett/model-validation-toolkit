@@ -228,8 +228,8 @@ def batch_generator(X, y, balance=False):
     if balance:
         weights = jax.numpy.empty(len(y))
         p = jax.numpy.mean(y)
-        weights = jax.ops.index_update(weights, y == 1, 1 / p)
-        weights = jax.ops.index_update(weights, y == 0, 1 / (1 - p))
+        weights = weights.at[y == 1].set(1 / p)
+        weights = weights.ad[y == 0].set(1 / (1 - p))
         weights /= weights.sum()
         weights = jax.numpy.clip(weights, 0, 1)
     else:
@@ -368,9 +368,8 @@ def plot(
     )
     all_scores = []
     for replacement in all_values[:, rest]:
-        fixed_values = jax.ops.index_update(
-            data.values[feature_idx], jax.ops.index[:, rest], replacement
-        )
+        fixed_values = data.values[feature_idx].copy()
+        fixed_values[:, rest] = replacement
         scores = model(fixed_values)
         all_scores.append(scores)
         plt.plot(feature_values, scores, "b", alpha=0.125)

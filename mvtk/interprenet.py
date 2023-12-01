@@ -229,7 +229,7 @@ def batch_generator(X, y, balance=False):
         weights = jax.numpy.empty(len(y))
         p = jax.numpy.mean(y)
         weights = weights.at[y == 1].set(1 / p)
-        weights = weights.ad[y == 0].set(1 / (1 - p))
+        weights = weights.at[y == 0].set(1 / (1 - p))
         weights /= weights.sum()
         weights = jax.numpy.clip(weights, 0, 1)
     else:
